@@ -1,0 +1,249 @@
++--------+-------------+--------+----------+----------+------------+
+| SaleID | Salesperson | Region | Product  | Quantity | SaleAmount |
++--------+-------------+--------+----------+----------+------------+
+|      1 | Alice       | North  | Laptop   |        1 |    1000.00 |
+|      2 | Bob         | South  | Mouse    |        3 |      75.00 |
+|      3 | Alice       | North  | Monitor  |        2 |     300.00 |
+|      4 | Charlie     | East   | Keyboard |        1 |      50.00 |
+|      5 | Bob         | South  | Monitor  |        1 |     150.00 |
+|      6 | Alice       | North  | Mouse    |        2 |      50.00 |
+|      7 | Charlie     | East   | Laptop   |        2 |    2000.00 |
+|      8 | David       | West   | Laptop   |        1 |    1100.00 |
+|      9 | David       | West   | Mouse    |        4 |     100.00 |
+|     10 | Eve         | South  | Monitor  |        3 |     450.00 |
+|     11 | Eve         | South  | Keyboard |        2 |     100.00 |
+|     12 | Eve         | South  | Mouse    |        1 |      25.00 |
+|     13 | Alice       | North  | Keyboard |        1 |      60.00 |
+|     14 | Bob         | South  | Laptop   |        1 |    1200.00 |
+|     15 | Charlie     | East   | Mouse    |        2 |      50.00 |
++--------+-------------+--------+----------+----------+------------+
+
+1.Find total quantity sold by each salesperson.
+
+mysql> select Salesperson, sum(Quantity) from SalesData group by Salesperson;
++-------------+---------------+
+| Salesperson | sum(Quantity) |
++-------------+---------------+
+| Alice       |             6 |
+| Bob         |             5 |
+| Charlie     |             5 |
+| David       |             5 |
+| Eve         |             6 |
++-------------+---------------+
+
+2.Find salespersons who sold more than 5 items in total.
+mysql> select Salesperson, sum(Quantity) from SalesData group by Salesperson having sum(Quantity)>5;
++-------------+---------------+
+| Salesperson | sum(Quantity) |
++-------------+---------------+
+| Alice       |             6 |
+| Eve         |             6 |
++-------------+---------------+
+
+3.Find number of products sold by each salesperson.
+mysql> select Salesperson, sum(Quantity) from SalesData group by Salesperson;
++-------------+---------------+
+| Salesperson | sum(Quantity) |
++-------------+---------------+
+| Alice       |             6 |
+| Bob         |             5 |
+| Charlie     |             5 |
+| David       |             5 |
+| Eve         |             6 |
++-------------+---------------+
+
+4.List regions where total sale amount exceeded $1000.
+mysql> select Region,sum(SaleAmount) from SalesData group by Region Having sum(SaleAmount)>1000;
++--------+-----------------+
+| Region | sum(SaleAmount) |
++--------+-----------------+
+| North  |         1410.00 |
+| South  |         2000.00 |
+| East   |         2100.00 |
+| West   |         1200.00 |
++--------+-----------------+
+
+5.Show salespersons who made more than 2 sales transactions.
+mysql> select Salesperson, sum(Quantity) from SalesData group by Salesperson having sum(Quantity)>2;
++-------------+---------------+
+| Salesperson | sum(Quantity) |
++-------------+---------------+
+| Alice       |             6 |
+| Bob         |             5 |
+| Charlie     |             5 |
+| David       |             5 |
+| Eve         |             6 |
++-------------+---------------+
+
+6.Find total sale amount by product, and show only products that made over $500 in sales.
+mysql> Select Product, sum(SaleAmount) from SalesData group by Product having sum(SaleAmount)>500;
++---------+-----------------+
+| Product | sum(SaleAmount) |
++---------+-----------------+
+| Laptop  |         5300.00 |
+| Monitor |          900.00 |
++---------+-----------------+
+
+7.Show the total quantity sold of each product in each region.
+mysql> Select Region, Product, sum(Quantity) from SalesData group by Region, Product;
++--------+----------+---------------+
+| Region | Product  | sum(Quantity) |
++--------+----------+---------------+
+| North  | Laptop   |             1 |
+| South  | Mouse    |             4 |
+| North  | Monitor  |             2 |
+| East   | Keyboard |             1 |
+| South  | Monitor  |             4 |
+| North  | Mouse    |             2 |
+| East   | Laptop   |             2 |
+| West   | Laptop   |             1 |
+| West   | Mouse    |             4 |
+| South  | Keyboard |             2 |
+| North  | Keyboard |             1 |
+| South  | Laptop   |             1 |
+| East   | Mouse    |             2 |
++--------+----------+---------------+
+
+8.Find salespersons who sold more than 1 type of product.
+mysql> Select Salesperson, count(distinct Product) from SalesData group by Salesperson having Count(Distinct Product)>1;
++-------------+-------------------------+
+| Salesperson | count(distinct Product) |
++-------------+-------------------------+
+| Alice       |                       4 |
+| Bob         |                       3 |
+| Charlie     |                       3 |
+| David       |                       2 |
+| Eve         |                       3 |
++-------------+-------------------------+
+
+9.Find the average quantity per product sold per region, where the average is greater than 1.
+mysql> select Region, avg(Quantity) from SalesData group by Region having avg(Quantity)>1
+    -> ;
++--------+---------------+
+| Region | avg(Quantity) |
++--------+---------------+
+| North  |        1.5000 |
+| South  |        1.8333 |
+| East   |        1.6667 |
+| West   |        2.5000 |
++--------+---------------+
+
+10.Show salespersons whose total sale amount is between $500 and $1500.
+mysql> Select Salesperson,sum(SaleAmount) from SalesData group by SalesPerson having sum(SaleAmount)>500 and Sum(saleamount)<1500;
++-------------+-----------------+
+| Salesperson | sum(SaleAmount) |
++-------------+-----------------+
+| Alice       |         1410.00 |
+| Bob         |         1425.00 |
+| David       |         1200.00 |
+| Eve         |          575.00 |
++-------------+-----------------+
+
+11.List top-performing products (more than 3 units sold in total).
+mysql> Select Product from SalesData group by Product having sum(Quantity)>3;
++----------+
+| Product  |
++----------+
+| Laptop   |
+| Mouse    |
+| Monitor  |
+| Keyboard |
++----------+
+
+12.List salespersons who sold laptops.
+mysql> Select Salesperson from SalesData where Product='Laptop';
++-------------+
+| Salesperson |
++-------------+
+| Alice       |
+| Charlie     |
+| David       |
+| Bob         |
++-------------+
+
+13.Find total sale amount per salesperson per region, only where it exceeds $500.
+mysql> Select Salesperson, Region from SalesData group by Salesperson, Region having sum(SaleAmount)>500;
++-------------+--------+
+| Salesperson | Region |
++-------------+--------+
+| Alice       | North  |
+| Bob         | South  |
+| Charlie     | East   |
+| David       | West   |
+| Eve         | South  |
++-------------+--------+
+
+14.Find salespersons who sold at least 2 different products in a single region.
+mysql> Select Salesperson, Region, Count(Distinct Product) from SalesData group by Salesperson, Region having Count(Distinct Product)>=2;
++-------------+--------+-------------------------+
+| Salesperson | Region | Count(Distinct Product) |
++-------------+--------+-------------------------+
+| Alice       | North  |                       4 |
+| Bob         | South  |                       3 |
+| Charlie     | East   |                       3 |
+| David       | West   |                       2 |
+| Eve         | South  |                       3 |
++-------------+--------+-------------------------+
+
+15.Find products that were sold in more than one region.
+mysql> Select Product, count(Region) from SalesData Group by Product having Count(Region)>1;
++----------+---------------+
+| Product  | count(Region) |
++----------+---------------+
+| Laptop   |             4 |
+| Mouse    |             5 |
+| Monitor  |             3 |
+| Keyboard |             3 |
++----------+---------------+
+
+16.Show total number of sales per product and hide products with fewer than 2 sales.
+mysql> Select Product, sum(Quantity) from SalesData group by Product having sum(Quantity)>2;
++----------+---------------+
+| Product  | sum(Quantity) |
++----------+---------------+
+| Laptop   |             5 |
+| Mouse    |            12 |
+| Monitor  |             6 |
+| Keyboard |             4 |
++----------+---------------+
+
+17.Find region-wise total quantity sold by each salesperson.
+mysql> select Region, Salesperson, sum(Quantity) from salesdata group by Region, Salesperson;
++--------+-------------+---------------+
+| Region | Salesperson | sum(Quantity) |
++--------+-------------+---------------+
+| North  | Alice       |             6 |
+| South  | Bob         |             5 |
+| East   | Charlie     |             5 |
+| West   | David       |             5 |
+| South  | Eve         |             6 |
++--------+-------------+---------------+
+
+18.Find salespersons who made more than 3 transactions and total sales amount is over $1000.
+mysql> select Salesperson, count(*), sum(SaleAmount) from salesdata group by Salesperson having count(*) > 3 and sum(SaleAmount) > 1000;
++-------------+----------+-----------------+
+| Salesperson | count(*) | sum(SaleAmount) |
++-------------+----------+-----------------+
+| Alice       |        4 |         1410.00 |
++-------------+----------+-----------------+
+
+19.Find average sale amount per region and show only regions with average above $200.
+mysql> select Region, avg(SaleAmount) from salesdata group by Region having avg(SaleAmount) > 200;
++--------+-----------------+
+| Region | avg(SaleAmount) |
++--------+-----------------+
+| North  |      352.500000 |
+| South  |      333.333333 |
+| East   |      700.000000 |
+| West   |      600.000000 |
++--------+-----------------+
+
+20.List regions and products where more than 3 units were sold.
+mysql> select Region, Product, sum(Quantity) from salesdata group by Region, Product having sum(Quantity) > 3;
++--------+---------+---------------+
+| Region | Product | sum(Quantity) |
++--------+---------+---------------+
+| South  | Mouse   |             4 |
+| South  | Monitor |             4 |
+| West   | Mouse   |             4 |
++--------+---------+---------------+
